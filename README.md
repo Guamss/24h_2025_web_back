@@ -20,3 +20,9 @@ pip install -r requirements.txt
 ```
 fastapi dev src/main.py
 ```
+
+## Déployer le projet 
+```
+docker build -t <image-name> .
+docker run -d --name <container-name> -p 80:80 <image-name>
+```
