@@ -1,4 +1,4 @@
-""" import psycopg2 """
+import database
 from typing import Union
 from config import ORIGINS, TAGS_METADATA, DESCRIPTION
 from uuid import uuid4, UUID
@@ -6,16 +6,7 @@ from models.person import PersonIn, PersonOut
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-""" try:
-    conn = psycopg2.connect(
-        database="database",
-        user="postgres",
-        password="Azerty1234",
-        host="127.0.0.1",
-        port="5432"
-    )
-except Exception as e:
-    raise e """
+
 
 app = FastAPI(
     openapi_tags=TAGS_METADATA,

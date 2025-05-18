@@ -1,4 +1,5 @@
 .venv/
+logins.json
 
 __pycache__/
 *.py[cod]
