@@ -1,23 +1,21 @@
 TAGS_METADATA = [
     {
-        "name": "Persons",
-        "description": "Routes sur la ressource **Person**.",
+        "name": "Scores",
+        "description": "Routes sur la ressource **Score**.",
     }
 ]
 
 ORIGINS = [
     "http://localhost:4200",
+    "http://10.17.40.40:4200"
 ]
 
 DESCRIPTION = """
 la description de l'API.
 
-## Persons
+## Score
 
-You will be able to:
+Il est possible de :
 
-* **Créer une personne** (_not implemented_).
-* **Récupérer une personne** (_not implemented_).
-* **Modifier une personne** (_not implemented_).
-* **Supprimer une personne** (_not implemented_).
+* **Ajouter un score**.
 """

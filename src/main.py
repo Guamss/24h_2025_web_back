@@ -1,21 +1,22 @@
-import database
-from typing import Union
-from config import ORIGINS, TAGS_METADATA, DESCRIPTION
-from uuid import uuid4, UUID
-from models.person import PersonIn, PersonOut
+import csv
+import os
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
+from config import ORIGINS, TAGS_METADATA, DESCRIPTION
+from models.score import ScoreDTO, ScoreDAO
 
+DATA_PATH = "data/scores.csv"
 
 app = FastAPI(
     openapi_tags=TAGS_METADATA,
-    title="API template",
+    title="API pour le 24h info :-)",
     description=DESCRIPTION,
-    summary="La documentation swagger du template d'API",
+    summary="La documentation swagger de notre magnifique API",
     version="0.0.1",
     terms_of_service="http://example.com/terms/"
-    )
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -26,49 +27,29 @@ app.add_middleware(
 )
 
 """
-    Section Persons
+    Section Score
 """
-@app.get("/persons", tags=["Persons"], response_model=list[PersonOut])
-def list_persons():
-    return [PersonOut(
-        id=uuid4(), 
-        name="alexis", 
-        age=20,
-        address="mlf")]
 
-@app.get("/persons/{id}", tags=["Persons"], response_model=PersonOut)
-def get_person_by_id(id: UUID):
-    return PersonOut(
-        id=id, 
-        name="Baptiste", 
-        age=20,
-        address="baise pascal")
 
-@app.post("/persons", tags=["Persons"], response_model=PersonOut, status_code=201)
-def create_person(person: PersonIn):
-    if person.age < 1: raise HTTPException(status_code=400, detail="Age non valide")
-    return PersonOut(
-        id=uuid4(),
-        name=person.name,
-        age=person.age,
-        address=person.address)
+@app.get("/scores", tags=["Scores"], response_model=list[ScoreDTO])
+def list_scores():
+    with open(DATA_PATH, newline="", encoding="utf-8") as file:
+        reader = csv.DictReader(file)
+        return [ScoreDTO(**row) for row in reader]
 
-@app.put("/persons/{id}", tags=["Persons"], response_model=PersonOut)
-def update_person(id: UUID, updated_person: PersonIn):
-    if updated_person.age < 1: raise HTTPException(status_code=400, detail="Age non valide")
-    return PersonOut(
-        id=id,
-        name=updated_person.name,
-        age=updated_person.age,
-        address=updated_person.address)
 
-@app.delete("/persons/{id}", tags=["Persons"])
-def delete_person(id: UUID):
-    return
+@app.post("/scores", tags=["Scores"], response_model=ScoreDTO, status_code=201)
+def publish_score(score: ScoreDAO):
+    if score.score < 0:
+        raise HTTPException(status_code=400, detail="Score invalide (doit être positif)")
 
-"""
-    Section items
-"""
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
+    os.makedirs(os.path.dirname(DATA_PATH), exist_ok=True)
+
+    file_exists = os.path.isfile(DATA_PATH)
+    with open(DATA_PATH, mode="a", newline="", encoding="utf-8") as file:
+        writer = csv.writer(file)
+        if not file_exists:
+            writer.writerow(["name", "score"])
+        writer.writerow([score.name, score.score])
+
+    return ScoreDTO(**score.dict())
